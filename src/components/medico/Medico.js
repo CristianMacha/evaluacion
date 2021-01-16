@@ -1,17 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from '../../hooks/useForm';
+import { firebase } from '../../firebase';
+import shortid from 'shortid';
 
 export const Medico = () => {
-    const [form, setForm] = useState({
+    const [formValues, handleInputChange] = useForm({
+        id: '',
         nombre: '',
         edad: 0,
         documento: '',
         ingreso: '',
-        especialidad: ''
-    })
+        especialidad: '',
+    });
 
-    const handleSubmit = () => {
-        alert(form)
-    }
+    let listMedicos = [];
+
+    const { nombre, edad, documento, ingreso, especialidad } = formValues;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const database = firebase.database();
+        await database.ref('medico/' + shortid.generate()).set(formValues);
+        console.log(formValues);
+    };
+
+    const getMedicos = async () => {
+        const database = firebase.database();
+        database.ref('medico/').on('value', (snapshot) => {
+            const data = snapshot.val();
+            console.log(data);
+            listMedicos = Object.values(data)
+        });
+    };
+
+    getMedicos();
 
     return (
         <div>
@@ -52,13 +74,15 @@ export const Medico = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th>1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>@mdo</td>
-                            </tr>
+                            {listMedicos.map((item, index) => (
+                                <tr key={item.id}>
+                                    <th>{item.nombre}</th>
+                                    <th>{item.edad}</th>
+                                    <th>{item.documento}</th>
+                                    <th>{item.ingreso}</th>
+                                    <th>{item.especialidad}</th>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
@@ -85,26 +109,53 @@ export const Medico = () => {
                             ></button>
                         </div>
                         <div className="modal-body">
-                            <form onSubmit={handleSubmit}>
+                            <form>
                                 <div className="mb-3">
                                     <label>Nombre</label>
-                                    <input className="form-control" value={form.nombre}></input>
+                                    <input
+                                        className="form-control"
+                                        name="nombre"
+                                        value={nombre}
+                                        onChange={handleInputChange}
+                                    ></input>
                                 </div>
                                 <div className="mb-3">
                                     <label>Edad</label>
-                                    <input type="number" className="form-control" value={form.edad}></input>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        name="edad"
+                                        value={edad}
+                                        onChange={handleInputChange}
+                                    ></input>
                                 </div>
                                 <div className="mb-3">
                                     <label>Documento</label>
-                                    <input className="form-control" value={form.documento}></input>
+                                    <input
+                                        className="form-control"
+                                        name="documento"
+                                        value={documento}
+                                        onChange={handleInputChange}
+                                    ></input>
                                 </div>
                                 <div className="mb-3">
-                                    <label>ingreso</label>
-                                    <input type="date" className="form-control" value={form.ingreso}></input>
+                                    <label>ingreso+</label>
+                                    <input
+                                        type="date"
+                                        className="form-control"
+                                        name="ingreso"
+                                        value={ingreso}
+                                        onChange={handleInputChange}
+                                    ></input>
                                 </div>
                                 <div className="mb-3">
-                                    <label>Especialidad</label>
-                                    <input className="form-control" value={form.especialidad}></input>
+                                    <label>Especialidad+</label>
+                                    <input
+                                        className="form-control"
+                                        name="especialidad"
+                                        value={especialidad}
+                                        onChange={handleInputChange}
+                                    ></input>
                                 </div>
                             </form>
                         </div>
@@ -116,7 +167,10 @@ export const Medico = () => {
                             >
                                 Cerrar
                             </button>
-                            <button type="submit" className="btn btn-primary">
+                            <button
+                                onClick={handleSubmit}
+                                className="btn btn-primary"
+                            >
                                 Guardar
                             </button>
                         </div>
