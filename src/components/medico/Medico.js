@@ -29,9 +29,13 @@ export const Medico = () => {
         database.ref('medico/').on('value', (snapshot) => {
             const data = snapshot.val();
             console.log(data);
-            listMedicos = Object.values(data)
+            listMedicos = Object.values(data);
         });
     };
+
+    const selectMedico = (e) => {
+        // handleInputChange(values);
+    }
 
     getMedicos();
 
@@ -71,16 +75,28 @@ export const Medico = () => {
                                 <th scope="col">Documento</th>
                                 <th scope="col">Ingreso</th>
                                 <th scope="col">Especialidad</th>
+                                <th scope="col">Opciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {listMedicos.map((item, index) => (
+                            {listMedicos.map((item) => (
                                 <tr key={item.id}>
                                     <th>{item.nombre}</th>
                                     <th>{item.edad}</th>
                                     <th>{item.documento}</th>
                                     <th>{item.ingreso}</th>
                                     <th>{item.especialidad}</th>
+                                    <th>
+                                        <button
+                                            onClick={selectMedico(item)}
+                                            className="btn btn-primary mx-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#exampleModal"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button className="btn btn-danger">Eliminar</button>
+                                    </th>
                                 </tr>
                             ))}
                         </tbody>
